@@ -7,7 +7,7 @@ import BOMConsultationScreen from './components/BOMtest'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {/* <App /> */}
-    <BOMConsultationScreen />
+    <App /> *
+    {/* <BOMConsultationScreen /> */}
   </StrictMode>
 )
