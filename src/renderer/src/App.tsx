@@ -4,6 +4,7 @@ import React from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
 import { BOMViewer } from './pages/BOMViewer';
+import DashboardLayout from './components/layout/DashboardLayout';
 
 function App() {
   return (
@@ -11,7 +12,7 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<DashboardLayout />} />  {/* ← MUDANÇA */}
           <Route path="/project/:projectId/machine/:machineId/bom" element={<BOMViewer />} />
         </Routes>
       </div>
