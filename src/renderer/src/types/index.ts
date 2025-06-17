@@ -9,11 +9,31 @@ export interface BOMItem {
 }
 
 export interface Project {
-  id: string;
+  id: number;
   name: string;
-  status: "active" | "inactive";
+  contractNumber?: string;
+  description?: string;
+  status:
+    | "Planning"
+    | "Active"
+    | "OnHold"
+    | "Review"
+    | "Completed"
+    | "Cancelled";
+  client?: string;
+  responsibleEngineer?: string;
+  createdAt: string;
   lastActivity?: string;
   machineCount: number;
+  progressPercentage: number;
+  budgetValue?: number;
+  actualCost?: number;
+  estimatedHours: number;
+  actualHours: number;
+  // Campos calculados
+  isOverdue?: boolean;
+  isActive?: boolean;
+  statusColor?: string;
 }
 
 export interface BOMVersion {

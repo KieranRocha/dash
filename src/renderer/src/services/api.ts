@@ -36,8 +36,36 @@ export class APIService {
     return this.request("/api/projects");
   }
 
+  async getProject(id: number) {
+    return this.request(`/api/projects/${id}`);
+  }
+
+  async createProject(projectData: any) {
+    return this.request("/api/projects", {
+      method: "POST",
+      body: JSON.stringify(projectData),
+    });
+  }
+
+  async updateProject(id: number, projectData: any) {
+    return this.request(`/api/projects/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(projectData),
+    });
+  }
+
+  async deleteProject(id: number) {
+    return this.request(`/api/projects/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  async getActiveProjects() {
+    return this.request("/api/projects/active");
+  }
   // ✅ Mantém heartbeat se necessário
   async sendHeartbeat() {
     return this.request("/api/session/heartbeat", { method: "POST" });
   }
 }
+export const api = new APIService();

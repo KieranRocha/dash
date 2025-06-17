@@ -1,10 +1,13 @@
+// src/renderer/src/App.tsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// 1. Mude a importação para HashRouter
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
 import { BOMViewer } from './pages/BOMViewer';
 
 function App() {
   return (
+    // 2. O resto do código permanece o mesmo
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Routes>

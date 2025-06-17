@@ -22,7 +22,7 @@ export default defineConfig({
         // Redireciona qualquer requisição que comece com /api...
         "/api": {
           // ...para o seu backend C# que está rodando na porta 5000
-          target: "http://localhost:5000",
+          target: "http://localhost:5047",
           // Necessário para o redirecionamento funcionar corretamente
           changeOrigin: true,
           secure: false,
