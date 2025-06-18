@@ -2,6 +2,9 @@
 // PROJECT EFFICIENCY CHART
 // ================================
 
+import { Activity } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+
 interface ProjectEfficiencyChartProps {
     data: EfficiencyData[];
     height?: number;

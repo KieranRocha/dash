@@ -2,6 +2,8 @@
 // ENGINEERS STATUS PIE CHART
 // ================================
 
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+
 interface EngineerStatusData {
     status: string;
     count: number;

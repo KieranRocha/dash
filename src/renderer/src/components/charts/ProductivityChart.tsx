@@ -2,6 +2,11 @@
 // PRODUCTIVITY CHART
 // ================================
 
+import { ProductivityData } from "@renderer/hooks/useDashboard";
+import { BarChart3 } from "lucide-react";
+import { useMemo } from "react";
+import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+
 interface ProductivityChartProps {
     data: ProductivityData[];
     timeRange: '1h' | '24h' | '7d' | '30d';

@@ -2,6 +2,8 @@
 // BOM EXTRACTION TREND
 // ================================
 
+import { Area, AreaChart, Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+
 interface BOMTrendData {
     time: string;
     extractions: number;

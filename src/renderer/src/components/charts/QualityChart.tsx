@@ -1,3 +1,6 @@
+import { Target } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+
 interface QualityChartProps {
     data: QualityMetrics[];
     height?: number;

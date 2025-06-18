@@ -2,6 +2,8 @@
 // SYSTEM HEALTH GAUGE
 // ================================
 
+import { Zap } from "lucide-react";
+
 interface SystemHealthGaugeProps {
     value: number;
     title: string;
