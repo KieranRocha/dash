@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Menu,
     X,
@@ -53,6 +54,7 @@ const DashboardLayout: React.FC = () => {
         bomTrendData: [],
         engineerStatusData: []
     });
+    const navigate = useNavigate();
     // Auto-close sidebar on mobile when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -114,7 +116,7 @@ const DashboardLayout: React.FC = () => {
             )}
 
             {/* Sidebar */}
-            <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                 }`} id="mobile-sidebar">
                 <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
                     <div className="flex items-center gap-3">
@@ -134,9 +136,9 @@ const DashboardLayout: React.FC = () => {
                 <nav className="mt-6 px-3">
                     <div className="space-y-1">
                         {navigationItems.map((item) => (
-                            <a
+                            <button
                                 key={item.id}
-                                href="#"
+
                                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${item.active
                                     ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
                                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -144,11 +146,12 @@ const DashboardLayout: React.FC = () => {
                                 onClick={(e) => {
                                     e.preventDefault();
                                     setSidebarOpen(false);
+                                    navigate('/projetos');
                                 }}
                             >
                                 <item.icon className="w-5 h-5" />
                                 {item.label}
-                            </a>
+                            </button>
                         ))}
                     </div>
                 </nav>

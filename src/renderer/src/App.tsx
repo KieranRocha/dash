@@ -5,6 +5,7 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
 import { BOMViewer } from './pages/BOMViewer';
 import DashboardLayout from './components/layout/DashboardLayout';
+import ProjectListPage from './pages/ProjectListPage';
 
 function App() {
   return (
@@ -14,6 +15,8 @@ function App() {
         <Routes>
           <Route path="/" element={<DashboardLayout />} />  {/* ← MUDANÇA */}
           <Route path="/project/:projectId/machine/:machineId/bom" element={<BOMViewer />} />
+          <Route path="/projetos" element={<ProjectListPage />} />
+          {/* Adicione outras rotas conforme necessário */}
         </Routes>
       </div>
     </Router>
