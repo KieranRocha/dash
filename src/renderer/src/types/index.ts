@@ -1,18 +1,10 @@
-export interface BOMItem {
-  partNumber: string;
-  description: string;
-  quantity: number;
-  mass: number;
-  material: string;
-  level: number;
-  documentPath?: string;
-}
-
+// src/types/index.ts - CORRIGIDO: Alinhado com DTOs do backend
 export interface Project {
   id: number;
   name: string;
   contractNumber?: string;
   description?: string;
+  folderPath?: string;
   status:
     | "Planning"
     | "Active"
@@ -23,29 +15,88 @@ export interface Project {
   client?: string;
   responsibleEngineer?: string;
   createdAt: string;
-  lastActivity?: string;
-  machineCount: number;
-  progressPercentage: number;
+  updatedAt: string;
+  startDate?: string;
+  endDate?: string;
   budgetValue?: number;
   actualCost?: number;
+  progressPercentage: number;
   estimatedHours: number;
   actualHours: number;
-  // Campos calculados
-  isOverdue?: boolean;
-  isActive?: boolean;
-  statusColor?: string;
+  machineCount: number;
+  lastActivity?: string;
+  totalBomVersions: number;
+
+  // Campos calculados que vêm do backend
+  budgetVariance?: number;
+  hourVariance?: number;
 }
 
-export interface BOMVersion {
+export interface ProjectSummary {
   id: number;
-  versionNumber: number;
-  extractedAt: string;
-  extractedBy: string;
-  items: BOMItem[];
-}
-export interface Machine {
-  id: number | string; // Pode ser string se for temporário no form
   name: string;
-  code?: string;
+  contractNumber?: string;
+  status: string;
+  client?: string;
+  progressPercentage: number;
+  machineCount: number;
+  lastActivity?: string;
+  createdAt: string;
+  endDate?: string;
+
+  // Campos calculados do backend
+  isOverdue: boolean;
+  isActive: boolean;
+  statusColor: string;
+}
+
+export interface CreateProject {
+  name: string;
+  contractNumber?: string;
   description?: string;
+  folderPath?: string;
+  client?: string;
+  responsibleEngineer?: string;
+  startDate?: string;
+  endDate?: string;
+  budgetValue?: number;
+  estimatedHours?: number;
+  initialMachines?: string[];
+}
+
+export interface UpdateProject {
+  name?: string;
+  contractNumber?: string;
+  description?: string;
+  folderPath?: string;
+  status?: string;
+  client?: string;
+  responsibleEngineer?: string;
+  startDate?: string;
+  endDate?: string;
+  budgetValue?: number;
+  actualCost?: number;
+  progressPercentage?: number;
+  estimatedHours?: number;
+  actualHours?: number;
+}
+
+export interface BOMItem {
+  partNumber: string;
+  description?: string;
+  quantity: number;
+  stockNumber?: string;
+}
+
+export interface ApiError {
+  message: string;
+  status?: number;
+  code?: string;
+  details?: any;
+}
+
+export interface ApiResponse<T> {
+  data?: T;
+  error?: ApiError;
+  loading: boolean;
 }

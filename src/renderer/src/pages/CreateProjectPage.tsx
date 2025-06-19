@@ -9,7 +9,7 @@ import { Step4_Machines } from '../components/project/create/Step4_Machines';
 import { Step5_Team } from '../components/project/create/Step5_Team';
 import { Step6_Review } from '../components/project/create/Step6_Review';
 import { api } from '../services/api'; // Supondo que você tenha a instância da API aqui
-import { Project } from '../types/index';
+import { Project } from '../types/';
 
 const steps = [
     'Informações Básicas',
