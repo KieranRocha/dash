@@ -43,3 +43,9 @@ export interface BOMVersion {
   extractedBy: string;
   items: BOMItem[];
 }
+export interface Machine {
+  id: number | string; // Pode ser string se for temporário no form
+  name: string;
+  code?: string;
+  description?: string;
+}
