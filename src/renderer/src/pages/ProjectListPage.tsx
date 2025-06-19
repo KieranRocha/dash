@@ -2,7 +2,7 @@ import React from 'react'
 import { ProjectList } from '../components/ProjectList'
 function ProjectListPage() {
     return (
-        <div><ProjectList /></div>
+        <div className='layout-main'><ProjectList /></div>
     )
 }
 

@@ -1,1 +1,4 @@
 @import "tailwindcss";
+.layout-main {
+  @apply p-6;
+}
