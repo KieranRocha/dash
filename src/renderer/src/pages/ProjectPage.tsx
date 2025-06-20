@@ -129,8 +129,8 @@ const ProjectCard: React.FC<{
                 <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                         className={`h-2 rounded-full transition-all ${project.progressPercentage >= 90 ? 'bg-green-600' :
-                                project.progressPercentage >= 70 ? 'bg-blue-600' :
-                                    project.progressPercentage >= 50 ? 'bg-yellow-600' : 'bg-gray-400'
+                            project.progressPercentage >= 70 ? 'bg-blue-600' :
+                                project.progressPercentage >= 50 ? 'bg-yellow-600' : 'bg-gray-400'
                             }`}
                         style={{ width: `${Math.min(project.progressPercentage, 100)}%` }}
                     />
@@ -300,15 +300,44 @@ export const ProjectsPage: React.FC = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Projetos</h1>
-                    <p className="text-gray-600 mt-1">
-                        {loading ? 'Carregando...' : `${filteredProjects.length} de ${projects.length} projetos`}
-                    </p>
+
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1 group">
+                    {/* Novo contêiner para o ícone: 
+      - Ocupa toda a altura do input (inset-y-0).
+      - Usa flexbox para centralizar o ícone verticalmente (flex items-center).
+      - 'pointer-events-none' garante que o clique passe direto para o input.
+    */}
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                        <Search
+                            className="w-5 h-5 text-gray-400 transition-colors duration-300 group-focus-within:text-blue-600"
+                            aria-hidden="true"
+                        />
+                    </div>
+
+                    <input
+                        type="text"
+                        placeholder="Pesquisar por nome, contrato ou cliente..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        // O padding esquerdo (pl-11) foi ajustado para dar espaço ao ícone
+                        className="w-full pl-11 pr-4 py-2.5 text-gray-800 bg-white border border-gray-200 rounded-lg placeholder:text-gray-500 transition-all duration-300 ease-in-out shadow-sm hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    />
                 </div>
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                    <option value="all">Todos os status</option>
+                    {uniqueStatuses.map(status => (
+                        <option key={status} value={status}>{status}</option>
+                    ))}
+                </select>
                 <Link
                     to="/projects/new"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -316,30 +345,6 @@ export const ProjectsPage: React.FC = () => {
                     <Plus className="w-4 h-4" />
                     Novo Projeto
                 </Link>
-            </div>
-
-            {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                    <input
-                        type="text"
-                        placeholder="Pesquisar por nome, contrato ou cliente..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                    <option value="all">Todos os status</option>
-                    {uniqueStatuses.map(status => (
-                        <option key={status} value={status}>{status}</option>
-                    ))}
-                </select>
             </div>
 
             {/* Projects Grid */}

@@ -28,7 +28,7 @@ export const Step1_BasicInfo: React.FC<StepProps> = ({ data, updateData }) => {
                     value={data.name || ''}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Ex: Sistema de Transporte Automatizado"
                 />
             </div>
@@ -44,14 +44,14 @@ export const Step1_BasicInfo: React.FC<StepProps> = ({ data, updateData }) => {
                     id="contractNumber"
                     value={data.contractNumber || ''}
                     onChange={handleChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                    className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm"
                     placeholder="Ex: C-2025-042"
                 />
             </div>
 
             {/* Campo Cliente */}
             <div>
-                <label htmlFor="client" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="client" className="block text-sm font-medium text-gray-700 ">
                     Cliente
                 </label>
                 <input
@@ -60,7 +60,7 @@ export const Step1_BasicInfo: React.FC<StepProps> = ({ data, updateData }) => {
                     id="client"
                     value={data.client || ''}
                     onChange={handleChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                    className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm "
                     placeholder="Ex: ACME Corporation"
                 />
             </div>

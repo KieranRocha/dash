@@ -9,33 +9,54 @@ import { Step4_Machines } from '../components/project/create/Step4_Machines';
 import { Step5_Team } from '../components/project/create/Step5_Team';
 import { Step6_Review } from '../components/project/create/Step6_Review';
 import { api } from '../services/api'; // Supondo que você tenha a instância da API aqui
-import { Project } from '../types/';
+import { Project } from '../types/index';
 
+// Os nomes dos passos para o Stepper
 const steps = [
     'Informações Básicas',
     'Escopo e Detalhes',
     'Prazos e Orçamento',
-    'Máquinas',
+    'Máquinas', // Este passo está alinhado com a necessidade de detalhar a máquina e o BOM
     'Equipe',
     'Revisão',
 ];
-
+const MOCK_PROJECT_FOR_TESTING: Partial<Project> = {
+    name: 'Projeto de Teste Rápido',
+    contractNumber: 'C-2025-TEST',
+    client: 'Cliente de Teste',
+    description: 'Esta é uma descrição para um projeto de teste para agilizar o desenvolvimento e os testes de UI.',
+    responsibleEngineer: 'Engenheiro de Teste',
+    startDate: '2025-07-01',
+    endDate: '2025-12-31',
+    budgetValue: 150000,
+    estimatedHours: 800,
+    machines: [{ id: 1, name: 'Prensa Hidráulica P-100', code: 'PH-P100' }],
+    team: [{ id: 1, name: 'Carlos Silva', email: 'carlos@email.com', role: 'Engineer' }],
+};
 export const CreateProjectPage: React.FC = () => {
     // const history = useHistory();
-    const [currentStep, setCurrentStep] = useState(1);
-    const [projectData, setProjectData] = useState<Partial<Project>>({
-        machines: [],
-        team: [],
-    });
+    const [currentStep, setCurrentStep] = useState(6); //! 1; // Começa no passo 1
+    const [projectData, setProjectData] = useState<Partial<Project>>(MOCK_PROJECT_FOR_TESTING)
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Função para os componentes filhos atualizarem o estado centralizado
     const updateData = (newData: Partial<Project>) => {
         setProjectData((prev) => ({ ...prev, ...newData }));
     };
 
+    // Funções para os botões de Avançar e Voltar
     const handleNext = () => setCurrentStep(prev => Math.min(prev + 1, steps.length));
     const handleBack = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
+    // --- NOVA FUNÇÃO ---
+    // Função para lidar com o clique direto em um passo no Stepper
+    const handleStepClick = (step: number) => {
+        // A lógica do componente Stepper já garante que esta função
+        // só será chamada para passos concluídos (step < currentStep).
+        setCurrentStep(step);
+    };
+
+    // Envia o projeto final para a API
     const handleFinalSubmit = async () => {
         setIsSubmitting(true);
         console.log("Enviando projeto para a API:", projectData);
@@ -51,6 +72,7 @@ export const CreateProjectPage: React.FC = () => {
         }
     };
 
+    // Renderiza o conteúdo do passo atual
     const renderStepContent = () => {
         switch (currentStep) {
             case 1: return <Step1_BasicInfo data={projectData} updateData={updateData} />;
@@ -64,27 +86,34 @@ export const CreateProjectPage: React.FC = () => {
     };
 
     return (
-        <div className="bg-gray-50 min-h-screen">
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">Novo Projeto</h1>
-                <p className="text-lg text-gray-600 mb-8">Siga os passos para configurar um novo projeto detalhadamente.</p>
-                <div className="bg-white p-8 rounded-xl shadow-lg">
-                    <Stepper steps={steps} currentStep={currentStep} />
-                    <div className="mt-10 py-6 border-t border-gray-200 min-h-[300px]">
+        <div className="min-h-screen bg-white layout-main">
+            <div className="container mx-auto ">
+                <div className="bg-white  sm:p-8 ">
+
+                    {/* --- ATUALIZAÇÃO AQUI ---
+                        A prop onStepClick foi adicionada para habilitar a navegação. */}
+                    <Stepper
+                        steps={steps}
+                        currentStep={currentStep}
+                        onStepClick={handleStepClick}
+                    />
+
+                    <div className="mt-20 py-6 border-t border-gray-200 min-h-[350px]">
                         {renderStepContent()}
                     </div>
-                    <div className="mt-8 pt-5 border-t border-gray-200 flex justify-between">
+
+                    <div className="mt-8 pt-5 border-t border-gray-200 flex justify-between items-center">
                         <div>
                             {currentStep > 1 && (
-                                <button type="button" onClick={handleBack} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Voltar</button>
+                                <button type="button" onClick={handleBack} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors">Voltar</button>
                             )}
                         </div>
                         <div>
                             {currentStep < steps.length && (
-                                <button type="button" onClick={handleNext} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Avançar</button>
+                                <button type="button" onClick={handleNext} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">Avançar</button>
                             )}
                             {currentStep === steps.length && (
-                                <button type="button" onClick={handleFinalSubmit} disabled={isSubmitting} className="px-6 py-3 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 disabled:bg-green-400">
+                                <button type="button" onClick={handleFinalSubmit} disabled={isSubmitting} className="px-6 py-3 bg-green-600 text-white font-bold rounded-md hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed transition-colors">
                                     {isSubmitting ? 'Criando Projeto...' : 'Finalizar e Criar Projeto'}
                                 </button>
                             )}

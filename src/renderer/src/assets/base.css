@@ -2,3 +2,24 @@
 .layout-main {
   @apply p-6;
 }
+--root {
+  --dash-color: #1e293b;
+  --dash-color-2: #334155;
+  --dash-color-3: #475569;
+  --dash-color-4: #64748b;
+  --dash-color-5: #94a3b8;
+  --dash-color-6: #cbd5e1;
+  --dash-color-7: #e2e8f0;
+  --dash-color-8: #f8fafc;
+}
+:root {
+  --primary-color: #1c66df;
+  --secondary-color: #f97316;
+  --success-color: #16a34a;
+  --warning-color: #f59e0b;
+  --error-color: #dc2626;
+  --info-color: #2563eb;
+  --text-color: #1e293b;
+  --text-color-2: #334155;
+  --text-color-3: #475569;
+}
