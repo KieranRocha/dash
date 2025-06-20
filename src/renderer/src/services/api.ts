@@ -111,7 +111,7 @@ export class APIService {
     signal?: AbortSignal,
   ): Promise<Project> {
     return this.request<Project>(
-      "/api/Projects",
+      "/api/projects",
       {
         method: "POST",
         body: JSON.stringify(projectData),

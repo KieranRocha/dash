@@ -59,9 +59,24 @@ export const CreateProjectPage: React.FC = () => {
     // Envia o projeto final para a API
     const handleFinalSubmit = async () => {
         setIsSubmitting(true);
-        console.log("Enviando projeto para a API:", projectData);
+        console.log("Dados originais do formulário:", projectData);
+
+        // --- INÍCIO DA CORREÇÃO ---
+
+        // 1. Crie uma cópia dos dados para não alterar o estado original diretamente
+        const dataParaEnviar = { ...projectData };
+
+        // 2. Verifique e converta as datas para o formato ISO 8601 (UTC)
+        // O input de data retorna "YYYY-MM-DD". new Date() cria a data na hora local.
+        // .toISOString() converte para o padrão UTC (ex: "2025-06-20T03:00:00.000Z")
+        if (dataParaEnviar.startDate) {
+            dataParaEnviar.startDate = new Date(dataParaEnviar.startDate).toISOString();
+        }
+        if (dataParaEnviar.endDate) {
+            dataParaEnviar.endDate = new Date(dataParaEnviar.endDate).toISOString();
+        }
         try {
-            await api.createProject(projectData);
+            await api.createProject(dataParaEnviar);
             alert("Projeto criado com sucesso!");
             // history.push('/projects');
         } catch (error) {
