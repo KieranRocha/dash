@@ -1,3 +1,5 @@
+import { MachineSummary } from "./machines";
+
 // src/types/index.ts - CORRIGIDO: Alinhado com DTOs do backend
 export interface Project {
   id: number;
@@ -26,6 +28,7 @@ export interface Project {
   machineCount: number;
   lastActivity?: string;
   totalBomVersions: number;
+  machines?: MachineSummary[];
 
   // Campos calculados que vêm do backend
   budgetVariance?: number;

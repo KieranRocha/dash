@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useProject, useProjectOperations } from '../hooks/useAPI';
 import { Project, UpdateProject } from '../types/index';
 import {
@@ -22,10 +23,6 @@ import {
     TrendingUp,
     TrendingDown
 } from 'lucide-react';
-
-// Simulação de useParams e navegação
-const useParams = () => ({ projectId: '1' });
-const useNavigate = () => ({ push: (path: string) => console.log('Navigate to:', path) });
 
 // Status Badge Component
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
@@ -314,7 +311,7 @@ const EditProjectModal: React.FC<{
 
 // Main Component
 export const ProjectDetailPage: React.FC = () => {
-    const { projectId } = useParams();
+    const { projectId } = useParams<{ projectId: string }>();
     const navigate = useNavigate();
     const { project, loading, error, refetch } = useProject(projectId);
     const { updateProject, loading: updateLoading } = useProjectOperations();
@@ -322,7 +319,7 @@ export const ProjectDetailPage: React.FC = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     const formatCurrency = (value?: number) => {
-        if (!value) return 'N/A';
+        if (!value && value !== 0) return 'N/A';
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL',
@@ -331,7 +328,8 @@ export const ProjectDetailPage: React.FC = () => {
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('pt-BR');
+        // Adiciona um timezone para garantir consistência ao criar o objeto Date
+        return new Date(`${dateString}T00:00:00`).toLocaleDateString('pt-BR');
     };
 
     const handleEdit = async (data: UpdateProject) => {
@@ -343,12 +341,13 @@ export const ProjectDetailPage: React.FC = () => {
             refetch();
         } catch (error) {
             console.error('Erro ao atualizar projeto:', error);
+            // Idealmente, mostrar um toast de erro para o usuário aqui
         }
     };
 
     if (loading) {
         return (
-            <div className="animate-pulse space-y-6">
+            <div className="p-6 animate-pulse space-y-6">
                 <div className="h-8 bg-gray-200 rounded w-1/3"></div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => (
@@ -362,7 +361,7 @@ export const ProjectDetailPage: React.FC = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-96">
+            <div className="p-6 flex items-center justify-center min-h-[calc(100vh-10rem)]">
                 <div className="text-center">
                     <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Erro ao carregar projeto</h3>
@@ -380,8 +379,9 @@ export const ProjectDetailPage: React.FC = () => {
 
     if (!project) {
         return (
-            <div className="text-center py-16">
+            <div className="p-6 text-center py-16">
                 <h3 className="text-lg font-medium text-gray-900">Projeto não encontrado</h3>
+                <p className="text-gray-500 mt-2">O projeto com o ID "{projectId}" não foi localizado.</p>
             </div>
         );
     }
@@ -389,12 +389,12 @@ export const ProjectDetailPage: React.FC = () => {
     const isOverdue = project.endDate && new Date(project.endDate) < new Date() && project.status !== 'Completed';
 
     return (
-        <div className="space-y-6">
+        <div className="p-6 space-y-6">
             {/* Header */}
             <div className="flex items-start justify-between">
                 <div className="min-w-0 flex-1">
                     <button
-                        onClick={() => window.history.back()}
+                        onClick={() => navigate(-1)}
                         className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
                     >
                         <ArrowLeft className="w-4 h-4" />
@@ -454,7 +454,7 @@ export const ProjectDetailPage: React.FC = () => {
                     value={formatCurrency(project.budgetValue)}
                     icon={DollarSign}
                     color="green"
-                    subtitle={project.actualCost ? `Gasto: ${formatCurrency(project.actualCost)}` : undefined}
+                    subtitle={project.actualCost ? `Gasto: ${formatCurrency(project.actualCost)}` : 'Nenhum custo lançado'}
                     trend={project.budgetVariance ? {
                         value: Math.abs(project.budgetVariance),
                         isPositive: project.budgetVariance <= 0
@@ -463,7 +463,7 @@ export const ProjectDetailPage: React.FC = () => {
 
                 <MetricCard
                     title="Horas"
-                    value={`${project.actualHours} / ${project.estimatedHours}`}
+                    value={`${project.actualHours || 0} / ${project.estimatedHours || 'N/A'}`}
                     icon={Clock}
                     color="blue"
                     subtitle="Trabalhadas / Estimadas"

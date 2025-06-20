@@ -21,7 +21,7 @@ const steps = [
     'Revisão',
 ];
 const MOCK_PROJECT_FOR_TESTING: Partial<Project> = {
-    name: 'Projeto de Teste Rápido',
+    name: 'machien',
     contractNumber: 'C-2025-TEST',
     client: 'Cliente de Teste',
     description: 'Esta é uma descrição para um projeto de teste para agilizar o desenvolvimento e os testes de UI.',
@@ -30,7 +30,7 @@ const MOCK_PROJECT_FOR_TESTING: Partial<Project> = {
     endDate: '2025-12-31',
     budgetValue: 150000,
     estimatedHours: 800,
-    machines: [{ id: 1, name: 'Prensa Hidráulica P-100', code: 'PH-P100' }],
+    machines: [{ id: 1, name: 'Prensa Hidráulica P-100', code: 'PH-P100' }, { id: 2, name: 'Prensa Hidráulica P-150', code: 'PH-P100' }],
     team: [{ id: 1, name: 'Carlos Silva', email: 'carlos@email.com', role: 'Engineer' }],
 };
 export const CreateProjectPage: React.FC = () => {
