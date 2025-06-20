@@ -1,6 +1,9 @@
+// src/renderer/src/pages/ProjectDetailPage.tsx - CORRIGIDO
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProject, useProjectOperations } from '../hooks/useAPI';
+import { useMachines } from '../hooks/useMachines'; // ✅ ADICIONADO
+import { MachineList } from '../components/machines/MachineList'; // ✅ ADICIONADO
 import { Project, UpdateProject } from '../types/index';
 import {
     ArrowLeft,
@@ -21,7 +24,9 @@ import {
     XCircle,
     Eye,
     TrendingUp,
-    TrendingDown
+    TrendingDown,
+    Settings, // ✅ ADICIONADO
+    Wrench   // ✅ ADICIONADO
 } from 'lucide-react';
 
 // Status Badge Component
@@ -96,7 +101,7 @@ const MetricCard: React.FC<{
     );
 };
 
-// Edit Modal Component
+// Edit Modal Component (mantém a implementação existente)
 const EditProjectModal: React.FC<{
     project: Project;
     isOpen: boolean;
@@ -121,202 +126,207 @@ const EditProjectModal: React.FC<{
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         const parsedValue = ['budgetValue', 'estimatedHours', 'progressPercentage'].includes(name) ?
-            (value ? Number(value) : undefined) : value;
-        setFormData(prev => ({ ...prev, [name]: parsedValue }));
+            (value ? parseFloat(value) : undefined) : value;
+
+        setFormData(prev => ({
+            ...prev,
+            [name]: parsedValue
+        }));
     };
 
     const handleSubmit = async () => {
         await onSave(formData);
+        onClose();
     };
 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-90vh overflow-y-auto">
-                <div>
-                    <div className="p-6 border-b border-gray-200">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-gray-900">Editar Projeto</h3>
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="p-6 space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Projeto</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name || ''}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Contrato</label>
-                                <input
-                                    type="text"
-                                    name="contractNumber"
-                                    value={formData.contractNumber || ''}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
-                                <input
-                                    type="text"
-                                    name="client"
-                                    value={formData.client || ''}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                <select
-                                    name="status"
-                                    value={formData.status || ''}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                >
-                                    <option value="Planning">Planejamento</option>
-                                    <option value="Active">Ativo</option>
-                                    <option value="OnHold">Pausado</option>
-                                    <option value="Review">Em Revisão</option>
-                                    <option value="Completed">Concluído</option>
-                                    <option value="Cancelled">Cancelado</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Progresso (%)</label>
-                                <input
-                                    type="number"
-                                    name="progressPercentage"
-                                    value={formData.progressPercentage || ''}
-                                    onChange={handleChange}
-                                    min="0"
-                                    max="100"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Responsável</label>
-                                <input
-                                    type="text"
-                                    name="responsibleEngineer"
-                                    value={formData.responsibleEngineer || ''}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Data de Início</label>
-                                <input
-                                    type="date"
-                                    name="startDate"
-                                    value={formData.startDate?.split('T')[0] || ''}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Data de Término</label>
-                                <input
-                                    type="date"
-                                    name="endDate"
-                                    value={formData.endDate?.split('T')[0] || ''}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Orçamento (R$)</label>
-                                <input
-                                    type="number"
-                                    name="budgetValue"
-                                    value={formData.budgetValue || ''}
-                                    onChange={handleChange}
-                                    min="0"
-                                    step="0.01"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Horas Estimadas</label>
-                                <input
-                                    type="number"
-                                    name="estimatedHours"
-                                    value={formData.estimatedHours || ''}
-                                    onChange={handleChange}
-                                    min="0"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
-                                <textarea
-                                    name="description"
-                                    value={formData.description || ''}
-                                    onChange={handleChange}
-                                    rows={3}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div className="p-6 border-b border-gray-200">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-semibold text-gray-900">Editar Projeto</h2>
                         <button
-                            type="button"
                             onClick={onClose}
-                            disabled={loading}
-                            className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50"
+                            className="text-gray-400 hover:text-gray-600"
                         >
-                            Cancelar
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={loading}
-                            className="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
-                        >
-                            {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-                            {loading ? 'Salvando...' : 'Salvar'}
+                            <X className="w-6 h-6" />
                         </button>
                     </div>
+                </div>
+
+                <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Projeto</label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name || ''}
+                                onChange={handleChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Número do Contrato</label>
+                            <input
+                                type="text"
+                                name="contractNumber"
+                                value={formData.contractNumber || ''}
+                                onChange={handleChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                            <input
+                                type="text"
+                                name="client"
+                                value={formData.client || ''}
+                                onChange={handleChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Engenheiro Responsável</label>
+                            <input
+                                type="text"
+                                name="responsibleEngineer"
+                                value={formData.responsibleEngineer || ''}
+                                onChange={handleChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select
+                                name="status"
+                                value={formData.status || ''}
+                                onChange={handleChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                <option value="Planning">Planejamento</option>
+                                <option value="Active">Ativo</option>
+                                <option value="OnHold">Pausado</option>
+                                <option value="Review">Em Revisão</option>
+                                <option value="Completed">Concluído</option>
+                                <option value="Cancelled">Cancelado</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Progresso (%)</label>
+                            <input
+                                type="number"
+                                name="progressPercentage"
+                                value={formData.progressPercentage || ''}
+                                onChange={handleChange}
+                                min="0"
+                                max="100"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Data de Início</label>
+                            <input
+                                type="date"
+                                name="startDate"
+                                value={formData.startDate || ''}
+                                onChange={handleChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Data de Término</label>
+                            <input
+                                type="date"
+                                name="endDate"
+                                value={formData.endDate || ''}
+                                onChange={handleChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Orçamento (R$)</label>
+                            <input
+                                type="number"
+                                name="budgetValue"
+                                value={formData.budgetValue || ''}
+                                onChange={handleChange}
+                                min="0"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Horas Estimadas</label>
+                            <input
+                                type="number"
+                                name="estimatedHours"
+                                value={formData.estimatedHours || ''}
+                                onChange={handleChange}
+                                min="0"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                            <textarea
+                                name="description"
+                                value={formData.description || ''}
+                                onChange={handleChange}
+                                rows={3}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={loading}
+                        className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        className="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                    >
+                        {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                        {loading ? 'Salvando...' : 'Salvar'}
+                    </button>
                 </div>
             </div>
         </div>
     );
 };
 
-// Main Component
+// ✅ COMPONENTE PRINCIPAL COM CORREÇÕES
 export const ProjectDetailPage: React.FC = () => {
     const { projectId } = useParams<{ projectId: string }>();
     const navigate = useNavigate();
     const { project, loading, error, refetch } = useProject(projectId);
     const { updateProject, loading: updateLoading } = useProjectOperations();
 
+    // ✅ ADICIONADO: Hook para buscar máquinas
+    const { machines, loading: machinesLoading, error: machinesError, refetch: refetchMachines } = useMachines(Number(projectId));
+
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState<'overview' | 'machines' | 'timeline' | 'files'>('overview'); // ✅ ADICIONADO
 
     const formatCurrency = (value?: number) => {
         if (!value && value !== 0) return 'N/A';
@@ -328,73 +338,69 @@ export const ProjectDetailPage: React.FC = () => {
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return 'N/A';
-        // Adiciona um timezone para garantir consistência ao criar o objeto Date
-        return new Date(`${dateString}T00:00:00`).toLocaleDateString('pt-BR');
+        return new Date(dateString).toLocaleDateString('pt-BR');
     };
 
-    const handleEdit = async (data: UpdateProject) => {
-        if (!project) return;
-
+    const handleEditProject = async (data: UpdateProject) => {
         try {
-            await updateProject(project.id, data);
-            setIsEditModalOpen(false);
-            refetch();
+            await updateProject(Number(projectId), data);
+            await refetch();
         } catch (error) {
             console.error('Erro ao atualizar projeto:', error);
-            // Idealmente, mostrar um toast de erro para o usuário aqui
         }
+    };
+
+    const handleBack = () => {
+        navigate('/projects');
     };
 
     if (loading) {
         return (
-            <div className="p-6 animate-pulse space-y-6">
+            <div className="animate-pulse space-y-6">
                 <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[...Array(6)].map((_, i) => (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    {[...Array(4)].map((_, i) => (
                         <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
                     ))}
                 </div>
-                <div className="h-64 bg-gray-200 rounded-lg"></div>
+                <div className="h-96 bg-gray-200 rounded-lg"></div>
             </div>
         );
     }
 
-    if (error) {
+    if (error || !project) {
         return (
-            <div className="p-6 flex items-center justify-center min-h-[calc(100vh-10rem)]">
+            <div className="flex items-center justify-center min-h-96">
                 <div className="text-center">
                     <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Erro ao carregar projeto</h3>
-                    <p className="text-gray-600 mb-4">{error.message}</p>
-                    <button
-                        onClick={() => refetch()}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                    >
-                        Tentar Novamente
-                    </button>
+                    <p className="text-gray-600 mb-4">{error?.message || 'Projeto não encontrado'}</p>
+                    <div className="flex gap-3 justify-center">
+                        <button
+                            onClick={() => refetch()}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        >
+                            Tentar Novamente
+                        </button>
+                        <button
+                            onClick={handleBack}
+                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                        >
+                            Voltar
+                        </button>
+                    </div>
                 </div>
             </div>
         );
     }
 
-    if (!project) {
-        return (
-            <div className="p-6 text-center py-16">
-                <h3 className="text-lg font-medium text-gray-900">Projeto não encontrado</h3>
-                <p className="text-gray-500 mt-2">O projeto com o ID "{projectId}" não foi localizado.</p>
-            </div>
-        );
-    }
-
-    const isOverdue = project.endDate && new Date(project.endDate) < new Date() && project.status !== 'Completed';
-
     return (
-        <div className="p-6 space-y-6">
+        <div className="space-y-6">
             {/* Header */}
             <div className="flex items-start justify-between">
                 <div className="min-w-0 flex-1">
                     <button
-                        onClick={() => navigate(-1)}
+                        onClick={handleBack}
                         className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
                     >
                         <ArrowLeft className="w-4 h-4" />
@@ -424,149 +430,177 @@ export const ProjectDetailPage: React.FC = () => {
                 </button>
             </div>
 
-            {/* Progress Bar */}
-            <div className={`p-4 rounded-lg border ${isOverdue ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'}`}>
-                <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-gray-700">Progresso do Projeto</span>
-                    <span className="text-sm font-semibold text-gray-900">{project.progressPercentage.toFixed(1)}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div
-                        className={`h-3 rounded-full transition-all ${project.progressPercentage >= 90 ? 'bg-green-600' :
-                            project.progressPercentage >= 70 ? 'bg-blue-600' :
-                                project.progressPercentage >= 50 ? 'bg-yellow-600' : 'bg-gray-400'
-                            }`}
-                        style={{ width: `${Math.min(project.progressPercentage, 100)}%` }}
-                    />
-                </div>
-                {isOverdue && (
-                    <div className="flex items-center gap-2 mt-2 text-red-600">
-                        <AlertTriangle className="w-4 h-4" />
-                        <span className="text-sm font-medium">Projeto em atraso</span>
-                    </div>
-                )}
-            </div>
-
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <MetricCard
+                    title="Progresso"
+                    value={`${project.progressPercentage}%`}
+                    icon={Target}
+                    color="blue"
+                />
+                <MetricCard
+                    title="Máquinas"
+                    value={project.machineCount}
+                    icon={Settings}
+                    color="green"
+                    subtitle={`${machines.length} carregadas`}
+                />
                 <MetricCard
                     title="Orçamento"
                     value={formatCurrency(project.budgetValue)}
                     icon={DollarSign}
-                    color="green"
-                    subtitle={project.actualCost ? `Gasto: ${formatCurrency(project.actualCost)}` : 'Nenhum custo lançado'}
-                    trend={project.budgetVariance ? {
-                        value: Math.abs(project.budgetVariance),
-                        isPositive: project.budgetVariance <= 0
-                    } : undefined}
-                />
-
-                <MetricCard
-                    title="Horas"
-                    value={`${project.actualHours || 0} / ${project.estimatedHours || 'N/A'}`}
-                    icon={Clock}
-                    color="blue"
-                    subtitle="Trabalhadas / Estimadas"
-                    trend={project.hourVariance ? {
-                        value: Math.abs(project.hourVariance),
-                        isPositive: project.hourVariance <= 0
-                    } : undefined}
-                />
-
-                <MetricCard
-                    title="Máquinas"
-                    value={project.machineCount}
-                    icon={Target}
-                    color="gray"
-                />
-
-                <MetricCard
-                    title="Versões BOM"
-                    value={project.totalBomVersions}
-                    icon={FolderOpen}
                     color="yellow"
                 />
-
                 <MetricCard
-                    title="Prazo"
-                    value={formatDate(project.endDate)}
-                    icon={Calendar}
-                    color={isOverdue ? "red" : "blue"}
-                />
-
-                <MetricCard
-                    title="Última Atividade"
-                    value={formatDate(project.lastActivity)}
+                    title="Horas Estimadas"
+                    value={project.estimatedHours}
                     icon={Clock}
                     color="gray"
                 />
             </div>
 
-            {/* Details Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <User className="w-5 h-5" />
-                        Informações Gerais
-                    </h3>
-                    <dl className="space-y-3">
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">Cliente</dt>
-                            <dd className="text-sm text-gray-900">{project.client || 'N/A'}</dd>
-                        </div>
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">Engenheiro Responsável</dt>
-                            <dd className="text-sm text-gray-900">{project.responsibleEngineer || 'N/A'}</dd>
-                        </div>
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">Pasta do Projeto</dt>
-                            <dd className="text-sm text-gray-900 font-mono">{project.folderPath || 'N/A'}</dd>
-                        </div>
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">Criado em</dt>
-                            <dd className="text-sm text-gray-900">{formatDate(project.createdAt)}</dd>
-                        </div>
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">Última atualização</dt>
-                            <dd className="text-sm text-gray-900">{formatDate(project.updatedAt)}</dd>
-                        </div>
-                    </dl>
-                </div>
-
-                <div className="bg-white p-6 rounded-lg border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <Calendar className="w-5 h-5" />
-                        Cronograma
-                    </h3>
-                    <dl className="space-y-3">
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">Data de Início</dt>
-                            <dd className="text-sm text-gray-900">{formatDate(project.startDate)}</dd>
-                        </div>
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">Data de Término</dt>
-                            <dd className={`text-sm ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
-                                {formatDate(project.endDate)}
-                            </dd>
-                        </div>
-                        <div>
-                            <dt className="text-sm font-medium text-gray-500">Duração do Projeto</dt>
-                            <dd className="text-sm text-gray-900">
-                                {project.startDate && project.endDate ?
-                                    `${Math.ceil((new Date(project.endDate).getTime() - new Date(project.startDate).getTime()) / (1000 * 60 * 60 * 24))} dias`
-                                    : 'N/A'}
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
+            {/* ✅ ADICIONADO: Sistema de Tabs */}
+            <div className="border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8">
+                    <button
+                        onClick={() => setActiveTab('overview')}
+                        className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'overview'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                    >
+                        Visão Geral
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('machines')}
+                        className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'machines'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                    >
+                        <Wrench className="w-4 h-4 inline mr-2" />
+                        Máquinas ({machines.length})
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('timeline')}
+                        className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'timeline'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                    >
+                        Timeline
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('files')}
+                        className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'files'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                    >
+                        Arquivos
+                    </button>
+                </nav>
             </div>
+
+            {/* ✅ ADICIONADO: Conteúdo das Tabs */}
+            {activeTab === 'overview' && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <Building className="w-5 h-5" />
+                            Informações do Projeto
+                        </h3>
+                        <dl className="space-y-3">
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">Cliente</dt>
+                                <dd className="text-sm text-gray-900">{project.client || 'N/A'}</dd>
+                            </div>
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">Engenheiro Responsável</dt>
+                                <dd className="text-sm text-gray-900">{project.responsibleEngineer || 'N/A'}</dd>
+                            </div>
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">Pasta do Projeto</dt>
+                                <dd className="text-sm text-gray-900 font-mono">{project.folderPath || 'N/A'}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-lg border border-gray-200">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <Calendar className="w-5 h-5" />
+                            Cronograma e Financeiro
+                        </h3>
+                        <dl className="space-y-3">
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">Data de Início</dt>
+                                <dd className="text-sm text-gray-900">{formatDate(project.startDate)}</dd>
+                            </div>
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">Data de Término</dt>
+                                <dd className="text-sm text-gray-900">{formatDate(project.endDate)}</dd>
+                            </div>
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">Criado em</dt>
+                                <dd className="text-sm text-gray-900">{formatDate(project.createdAt)}</dd>
+                            </div>
+                            <div>
+                                <dt className="text-sm font-medium text-gray-500">Última Atualização</dt>
+                                <dd className="text-sm text-gray-900">{formatDate(project.updatedAt)}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            )}
+
+            {/* ✅ ABA DE MÁQUINAS - AQUI ESTÁ A SOLUÇÃO! */}
+            {activeTab === 'machines' && (
+                <div className="space-y-6">
+                    {machinesError ? (
+                        <div className="text-center py-8">
+                            <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Erro ao carregar máquinas</h3>
+                            <p className="text-gray-600 mb-4">{machinesError.message}</p>
+                            <button
+                                onClick={() => refetchMachines()}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            >
+                                Tentar Novamente
+                            </button>
+                        </div>
+                    ) : (
+                        <MachineList
+                            machines={machines}
+                            projectId={Number(projectId)}
+                            loading={machinesLoading}
+                        />
+                    )}
+                </div>
+            )}
+
+            {activeTab === 'timeline' && (
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Timeline do Projeto</h3>
+                    <p className="text-gray-500">Timeline em desenvolvimento...</p>
+                </div>
+            )}
+
+            {activeTab === 'files' && (
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <FolderOpen className="w-5 h-5" />
+                        Arquivos do Projeto
+                    </h3>
+                    <p className="text-gray-500">Gerenciamento de arquivos em desenvolvimento...</p>
+                </div>
+            )}
 
             {/* Edit Modal */}
             <EditProjectModal
                 project={project}
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
-                onSave={handleEdit}
+                onSave={handleEditProject}
                 loading={updateLoading}
             />
         </div>

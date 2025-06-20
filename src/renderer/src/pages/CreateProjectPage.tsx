@@ -10,6 +10,7 @@ import { Step5_Team } from '../components/project/create/Step5_Team';
 import { Step6_Review } from '../components/project/create/Step6_Review';
 import { api } from '../services/api'; // Supondo que você tenha a instância da API aqui
 import { Project } from '../types/index';
+import { Navigate } from 'react-router-dom';
 
 // Os nomes dos passos para o Stepper
 const steps = [
@@ -61,32 +62,89 @@ export const CreateProjectPage: React.FC = () => {
         setIsSubmitting(true);
         console.log("Dados originais do formulário:", projectData);
 
-        // --- INÍCIO DA CORREÇÃO ---
-
-        // 1. Crie uma cópia dos dados para não alterar o estado original diretamente
-        const dataParaEnviar = { ...projectData };
-
-        // 2. Verifique e converta as datas para o formato ISO 8601 (UTC)
-        // O input de data retorna "YYYY-MM-DD". new Date() cria a data na hora local.
-        // .toISOString() converte para o padrão UTC (ex: "2025-06-20T03:00:00.000Z")
-        if (dataParaEnviar.startDate) {
-            dataParaEnviar.startDate = new Date(dataParaEnviar.startDate).toISOString();
-        }
-        if (dataParaEnviar.endDate) {
-            dataParaEnviar.endDate = new Date(dataParaEnviar.endDate).toISOString();
-        }
         try {
-            await api.createProject(dataParaEnviar);
-            alert("Projeto criado com sucesso!");
-            // history.push('/projects');
-        } catch (error) {
-            console.error("Erro ao criar projeto:", error);
-            alert("Falha ao criar o projeto.");
+            // ✅ CORREÇÃO 1: Função para converter data local para ISO string corretamente
+            const convertDateToISO = (dateString: string): string => {
+                // Input: "2025-06-20" (formato do input date)
+                // Criar data no timezone local às 12:00 para evitar problemas de timezone
+                const [year, month, day] = dateString.split('-').map(Number);
+                const localDate = new Date(year, month - 1, day, 12, 0, 0); // 12:00 local time
+                return localDate.toISOString();
+            };
+
+            // ✅ CORREÇÃO 2: Mapear dados para formato correto do backend
+            const projectPayload: CreateProject = {
+                // Dados básicos do projeto
+                name: projectData.name!,
+                contractNumber: projectData.contractNumber || undefined,
+                description: projectData.description || undefined,
+                folderPath: projectData.folderPath || undefined,
+                client: projectData.client || undefined,
+                responsibleEngineer: projectData.responsibleEngineer || undefined,
+
+                // ✅ DATAS CORRIGIDAS: Conversão segura para ISO
+                startDate: projectData.startDate ? convertDateToISO(projectData.startDate) : undefined,
+                endDate: projectData.endDate ? convertDateToISO(projectData.endDate) : undefined,
+
+                // Dados financeiros
+                budgetValue: projectData.budgetValue || undefined,
+                estimatedHours: projectData.estimatedHours || undefined,
+
+                // ✅ MÁQUINAS CORRIGIDAS: Mapear para formato do backend
+                initialMachines: projectData.machines?.map((machine, index) => ({
+                    name: machine.name,
+                    operationNumber: machine.code || `OP-${String(index + 1).padStart(3, '0')}`, // OP-001, OP-002, etc
+                    description: machine.description || `Máquina ${machine.name}`,
+                    folderPath: undefined, // Será definido pelo backend
+                    mainAssemblyPath: undefined // Será definido depois
+                })) || []
+            };
+
+            console.log("✅ Payload corrigido para API:", projectPayload);
+
+            // ✅ VALIDAÇÃO: Verificar dados obrigatórios
+            if (!projectPayload.name?.trim()) {
+                throw new Error("Nome do projeto é obrigatório");
+            }
+
+            // ✅ ENVIAR PARA API
+            const createdProject = await api.createProject(projectPayload);
+
+            console.log("✅ Projeto criado com sucesso:", createdProject);
+            console.log(`✅ ${projectPayload.initialMachines?.length || 0} máquinas associadas`);
+
+            // ✅ FEEDBACK DETALHADO
+            const machineCount = projectPayload.initialMachines?.length || 0;
+            const successMessage = machineCount > 0
+                ? `Projeto "${createdProject.name}" criado com ${machineCount} máquina(s)!`
+                : `Projeto "${createdProject.name}" criado com sucesso!`;
+
+            alert(successMessage);
+
+            // ✅ REDIRECIONAR PARA O PROJETO CRIADO (não para lista)
+            Navigate(`/projects/${createdProject.id}`);
+
+        } catch (error: any) {
+            console.error("❌ Erro ao criar projeto:", error);
+
+            // ✅ TRATAMENTO DE ERRO MELHORADO
+            let errorMessage = "Falha ao criar o projeto.";
+
+            if (error.message?.includes("Nome do projeto")) {
+                errorMessage = "Nome do projeto é obrigatório.";
+            } else if (error.status === 400) {
+                errorMessage = "Dados inválidos. Verifique os campos preenchidos.";
+            } else if (error.status === 500) {
+                errorMessage = "Erro interno do servidor. Tente novamente.";
+            } else if (error.message) {
+                errorMessage = `Erro: ${error.message}`;
+            }
+
+            alert(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
     };
-
     // Renderiza o conteúdo do passo atual
     const renderStepContent = () => {
         switch (currentStep) {

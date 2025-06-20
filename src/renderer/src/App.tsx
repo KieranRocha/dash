@@ -1,3 +1,4 @@
+// src/renderer/src/App.tsx - CORRIGIDO
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
@@ -5,12 +6,10 @@ import { Dashboard } from './pages/Dashboard';
 import { ProjectsPage } from './pages/ProjectPage';
 import { CreateProjectPage } from './pages/CreateProjectPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
+import { MachineDetailPage } from './pages/MachineDetailPage'; // ✅ ADICIONADO
 
 /**
  * Componente genérico para páginas que estão na sidebar mas ainda não foram criadas.
- * @param {object} props - Propriedades do componente.
- * @param {string} props.title - O título da página a ser exibido.
- * @returns {JSX.Element}
  */
 const PlaceholderPage = ({ title }: { title: string }) => (
   <div className="p-8">
@@ -35,8 +34,8 @@ export const App: React.FC = () => {
         <Route path="projects/new" element={<CreateProjectPage />} />
         <Route path="projects/:projectId" element={<ProjectDetailPage />} />
 
-        {/* Rota para o visualizador de BOM (baseado no hook useBOM) */}
-
+        {/* ✅ ADICIONADO: Rota para máquinas específicas */}
+        <Route path="projects/:projectId/machines/:machineId" element={<MachineDetailPage />} />
 
         {/* Rotas para itens da sidebar que ainda serão implementados */}
         <Route path="bom" element={<PlaceholderPage title="Lista de Materiais (BOMs)" />} />
