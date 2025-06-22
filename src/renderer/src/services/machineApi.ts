@@ -121,7 +121,29 @@ export class MachineAPIService {
       throw new Error(`Erro ao excluir máquina: ${response.statusText}`);
     }
   }
+  async getMachineLiveStatus(
+    projectId: number,
+    machineId: number,
+    signal?: AbortSignal,
+  ): Promise<MachineLiveStatus> {
+    const response = await fetch(
+      `${this.baseUrl}/api/projects/${projectId}/machines/${machineId}/live-status`,
+      {
+        signal,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
 
+    if (!response.ok) {
+      throw new Error(
+        `Erro ao buscar status da máquina: ${response.statusText}`,
+      );
+    }
+
+    return response.json();
+  }
   async getMachineBomVersions(
     projectId: number,
     machineId: number,
@@ -146,3 +168,21 @@ export class MachineAPIService {
 }
 
 export const machineApi = new MachineAPIService();
+export interface MachineLiveStatus {
+  id: number;
+  name: string;
+  status: string;
+  isActive: boolean;
+  lastBomExtraction?: string;
+  totalBomVersions: number;
+  currentFile?: string;
+  lastActivity?: string;
+  updatedAt: string;
+  quickStats: MachineQuickStats;
+}
+
+export interface MachineQuickStats {
+  bomVersionsThisWeek: number;
+  lastSaveTime?: string;
+  activeUsersCount: number;
+}
