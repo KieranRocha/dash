@@ -60,7 +60,7 @@ export const SimpleBOMTable: React.FC<SimpleBOMTableProps> = ({
     }, [projectId, machineId]);
 
     // Pegar versão mais recente (última do array)
-    const latestVersion = bomVersions.length > 0 ? bomVersions[bomVersions.length - 4] : null;
+    const latestVersion = bomVersions.length > 0 ? bomVersions[bomVersions.length - 1] : null;
 
     // Filtrar itens por busca
     const filteredItems = useMemo(() => {
