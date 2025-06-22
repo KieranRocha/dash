@@ -1,6 +1,7 @@
 // src/renderer/src/components/machines/SimpleBOMTable.tsx
 import React, { useState, useMemo } from 'react';
 import { Search, Download, FileText, FolderOpen, Package, Wrench } from 'lucide-react';
+import BOMDiffComplete from './BOMDiffComplete';
 
 interface BOMItem {
     partNumber: string;
@@ -262,6 +263,8 @@ export const SimpleBOMTable: React.FC<SimpleBOMTableProps> = ({
                     </span>
                 </div>
             </div>
+            <BOMDiffComplete machineId={1} projectId={1} />
         </div>
+
     );
 };
