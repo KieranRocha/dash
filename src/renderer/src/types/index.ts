@@ -89,8 +89,13 @@ export interface BOMItem {
   description?: string;
   quantity: number;
   stockNumber?: string;
+  // Campos opcionais para compatibilidade com BOMs existentes
+  level?: number;
+  mass?: number;
+  material?: string;
+  unit?: string;
+  category?: string;
 }
-
 export interface ApiError {
   message: string;
   status?: number;

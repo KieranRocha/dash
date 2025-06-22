@@ -14,6 +14,7 @@ import {
     Activity
 } from 'lucide-react';
 import { useLiveMachineData } from '../../hooks/useLiveMachineData';
+import { SimpleBOMTable } from './SimpleBOMTable';
 
 interface MachineDetailLiveProps {
     projectId: number;
@@ -277,6 +278,13 @@ export const MachineDetailLive: React.FC<MachineDetailLiveProps> = ({
                     Exportar BOM
                 </button>
             </div>
+            <SimpleBOMTable
+                projectId={projectId}
+                machineId={machineId}
+                onOpenFile={() => {
+                    // lógica para abrir arquivo
+                }}
+            />
         </div>
     );
 };

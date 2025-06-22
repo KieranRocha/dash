@@ -46,3 +46,19 @@ export interface UpdateMachine {
   mainAssemblyPath?: string;
   status?: string;
 }
+
+export interface ApiError {
+  message: string;
+  status?: number;
+  code?: string;
+  details?: any;
+}
+
+// Nova interface para BOM extraída do backend
+export interface ExtractedBOMData {
+  projectId: string;
+  machineId: string;
+  items: string; // JSON string dos itens
+  extractedAt?: string;
+  assemblyFilePath?: string;
+}
