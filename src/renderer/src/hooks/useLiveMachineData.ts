@@ -1,50 +1,43 @@
-// src/renderer/src/hooks/useLiveMachineData.ts
+// src/renderer/src/hooks/useLiveMachineData.ts - ATUALIZAÇÃO
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Machine } from "../types/machines";
-import { machineApi } from "../services/machineApi";
-import { ApiError } from "../types/index";
+import { machineApi, BOMVersion } from "../services/machineApi";
+import type { Machine, ApiError } from "../types/machines";
 
-interface LiveMachineData {
-  machine: Machine | null;
-  bomVersions: any[];
-  loading: boolean;
-  error: ApiError | null;
-  lastUpdate: Date | null;
-  isRealTimeEnabled: boolean;
-  refresh: () => Promise<void>;
-  toggleRealTime: () => void;
-}
-
-export function useLiveMachineData(
-  projectId: number,
-  machineId: number,
-  autoRefreshInterval: number = 30000, // 30 segundos padrão
-): LiveMachineData {
+export const useLiveMachineData = (projectId: number, machineId: number) => {
   const [machine, setMachine] = useState<Machine | null>(null);
-  const [bomVersions, setBomVersions] = useState<any[]>([]);
+  const [bomVersions, setBomVersions] = useState<BOMVersion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [isRealTimeEnabled, setIsRealTimeEnabled] = useState(true);
 
-  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const autoRefreshInterval = 30000; // 30 segundos
 
-  // Função para buscar dados da máquina
   const fetchMachineData = useCallback(
     async (signal?: AbortSignal): Promise<void> => {
       try {
         setError(null);
 
-        // Busca dados da máquina e versões BOM em paralelo
+        // ✅ Debug logs
+        console.log(
+          `🔍 Carregando dados: projeto ${projectId}, máquina ${machineId}`,
+        );
+
         const [machineData, bomData] = await Promise.all([
           machineApi.getMachine(projectId, machineId, signal),
           machineApi.getMachineBomVersions(projectId, machineId, signal),
         ]);
 
         if (!signal?.aborted) {
+          console.log("✅ Dados recebidos:", {
+            machine: machineData,
+            bomVersions: bomData,
+          });
+
           setMachine(machineData);
-          setBomVersions(bomData);
+          setBomVersions(bomData || []); // ✅ Fallback para array vazio
           setLastUpdate(new Date());
         }
       } catch (err: any) {
@@ -54,18 +47,17 @@ export function useLiveMachineData(
             code: "FETCH_ERROR",
           };
           setError(apiError);
-          console.error("Erro ao buscar dados da máquina:", err);
+          console.error("❌ Erro ao buscar dados:", err);
         }
       }
     },
     [projectId, machineId],
   );
 
-  // Função de refresh manual
   const refresh = useCallback(async (): Promise<void> => {
+    console.log("🔄 Refresh manual iniciado");
     setLoading(true);
 
-    // Cancela requisição anterior
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -82,12 +74,15 @@ export function useLiveMachineData(
     }
   }, [fetchMachineData]);
 
-  // Toggle do tempo real
   const toggleRealTime = useCallback(() => {
-    setIsRealTimeEnabled((prev) => !prev);
+    setIsRealTimeEnabled((prev) => {
+      const newValue = !prev;
+      console.log(`🔄 Tempo real ${newValue ? "ativado" : "desativado"}`);
+      return newValue;
+    });
   }, []);
 
-  // Effect para carregar dados iniciais
+  // ✅ Carregamento inicial
   useEffect(() => {
     refresh();
 
@@ -98,7 +93,7 @@ export function useLiveMachineData(
     };
   }, [refresh]);
 
-  // Effect para auto-refresh
+  // ✅ Auto-refresh em tempo real
   useEffect(() => {
     if (!isRealTimeEnabled || !machine) {
       if (refreshIntervalRef.current) {
@@ -108,15 +103,13 @@ export function useLiveMachineData(
       return;
     }
 
-    // Configura auto-refresh
     refreshIntervalRef.current = setInterval(async () => {
       try {
-        console.log(`🔄 Auto-refresh máquina ${machineId}`);
-
+        console.log(`🔄 Auto-refresh: máquina ${machineId}`);
         const controller = new AbortController();
         await fetchMachineData(controller.signal);
       } catch (err) {
-        console.warn("Erro no auto-refresh:", err);
+        console.warn("⚠️ Erro no auto-refresh:", err);
       }
     }, autoRefreshInterval);
 
@@ -144,4 +137,4 @@ export function useLiveMachineData(
     refresh,
     toggleRealTime,
   };
-}
+};

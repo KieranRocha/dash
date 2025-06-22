@@ -218,7 +218,7 @@ export const MachineDetailLive: React.FC<MachineDetailLiveProps> = ({
                     <dl className="space-y-3">
                         <div>
                             <dt className="text-sm font-medium text-gray-500">Total de Versões</dt>
-                            <dd className="text-2xl font-bold text-blue-600">{machine.totalBomVersions}</dd>
+                            <dd className="text-2xl font-bold text-blue-600">{bomVersions.length}</dd>
                         </div>
                         <div>
                             <dt className="text-sm font-medium text-gray-500">Última Extração</dt>
@@ -227,7 +227,7 @@ export const MachineDetailLive: React.FC<MachineDetailLiveProps> = ({
                         <div>
                             <dt className="text-sm font-medium text-gray-500">Status da BOM</dt>
                             <dd className="text-sm text-gray-900">
-                                {machine.totalBomVersions > 0 ? (
+                                {bomVersions.length > 0 ? (
                                     <span className="text-green-600 font-medium">Disponível</span>
                                 ) : (
                                     <span className="text-yellow-600 font-medium">Aguardando extração</span>
@@ -262,9 +262,11 @@ export const MachineDetailLive: React.FC<MachineDetailLiveProps> = ({
 
             {/* Ações */}
             <div className="flex gap-3">
+
                 <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
                     <FileText className="w-4 h-4" />
                     Ver BOM Atual
+
                 </button>
                 <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
                     <Clock className="w-4 h-4" />
