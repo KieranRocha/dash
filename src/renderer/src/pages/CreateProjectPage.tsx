@@ -10,7 +10,7 @@ import { Step5_Team } from '../components/project/create/Step5_Team';
 import { Step6_Review } from '../components/project/create/Step6_Review';
 import { api } from '../services/api'; // Supondo que você tenha a instância da API aqui
 import { Project } from '../types/index';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigation } from 'react-router-dom';
 
 // Os nomes dos passos para o Stepper
 const steps = [
@@ -39,7 +39,7 @@ export const CreateProjectPage: React.FC = () => {
     const [currentStep, setCurrentStep] = useState(6); //! 1; // Começa no passo 1
     const [projectData, setProjectData] = useState<Partial<Project>>(MOCK_PROJECT_FOR_TESTING)
     const [isSubmitting, setIsSubmitting] = useState(false);
-
+    const navigate = useNavigation()
     // Função para os componentes filhos atualizarem o estado centralizado
     const updateData = (newData: Partial<Project>) => {
         setProjectData((prev) => ({ ...prev, ...newData }));
@@ -122,7 +122,7 @@ export const CreateProjectPage: React.FC = () => {
             alert(successMessage);
 
             // ✅ REDIRECIONAR PARA O PROJETO CRIADO (não para lista)
-            Navigate(`/projects/${createdProject.id}`);
+            navigate(`/projects/${createdProject.id}`);
 
         } catch (error: any) {
             console.error("❌ Erro ao criar projeto:", error);
