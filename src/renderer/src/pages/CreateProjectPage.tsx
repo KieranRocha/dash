@@ -39,7 +39,6 @@ export const CreateProjectPage: React.FC = () => {
     const [currentStep, setCurrentStep] = useState(6); //! 1; // Começa no passo 1
     const [projectData, setProjectData] = useState<Partial<Project>>(MOCK_PROJECT_FOR_TESTING)
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const navigate = useNavigation()
     // Função para os componentes filhos atualizarem o estado centralizado
     const updateData = (newData: Partial<Project>) => {
         setProjectData((prev) => ({ ...prev, ...newData }));
@@ -122,7 +121,6 @@ export const CreateProjectPage: React.FC = () => {
             alert(successMessage);
 
             // ✅ REDIRECIONAR PARA O PROJETO CRIADO (não para lista)
-            navigate(`/projects/${createdProject.id}`);
 
         } catch (error: any) {
             console.error("❌ Erro ao criar projeto:", error);
