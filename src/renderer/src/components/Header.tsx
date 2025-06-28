@@ -7,66 +7,102 @@ import {
     HelpCircle,
     User,
     Zap,
-    ArrowLeft
+    ArrowLeft,
+    Home,
+    ChevronRight
 } from 'lucide-react';
 
-// Itens de navegação para consulta de títulos e descrições
-const allNavItems = [
-    { id: 'dashboard', label: 'Dashboard', path: '/', description: 'Visão geral operacional' },
-    { id: 'projects', label: 'Projetos', path: '/projects', description: 'Gestão de projetos CAD' },
-    { id: 'projects/new', label: 'Novo Projeto', path: '/projects/new', description: 'Criar um novo projeto' },
-    { id: 'bom', label: 'BOMs', path: '/bom', description: 'Lista de materiais' },
-    { id: 'analytics', label: 'Analytics', path: '/analytics', description: 'Métricas e relatórios' },
-    { id: 'engineers', label: 'Engenheiros', path: '/engineers', description: 'Atividade da equipe' },
-    { id: 'quality', label: 'Qualidade', path: '/quality', description: 'Controle de qualidade' },
-    { id: 'settings', label: 'Configurações', path: '/settings', description: 'Configurações do sistema' },
-    { id: 'system', label: 'Sistema', path: '/system', description: 'Status e manutenção' }
-];
-
+// Mapeamento para breadcrumbs dinâmicos
+const breadcrumbConfig = {
+    '/': { label: 'Dashboard', icon: null },
+    '/projects': { label: 'Projetos', icon: null },
+    '/projects/new': { label: 'Novo Projeto', icon: null },
+    '/bom': { label: 'BOMs', icon: null },
+    '/analytics': { label: 'Analytics', icon: null },
+    '/engineers': { label: 'Engenheiros', icon: null },
+    '/quality': { label: 'Qualidade', icon: null },
+    '/settings': { label: 'Configurações', icon: null },
+    '/system': { label: 'Sistema', icon: null }
+};
 
 const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
     const location = useLocation();
     const navigate = useNavigate();
 
     /**
-     * Obtém as informações da página atual para exibir no header.
-     * @param {string} path - O caminho da URL atual.
-     * @returns {{title: string, description: string}}
+     * Gera os breadcrumbs baseado na URL atual
+     * @param {string} pathname - O caminho atual da URL
+     * @returns {Array} Array de breadcrumbs para exibir
      */
-    const getPageInfo = (path) => {
-        // Tenta encontrar uma correspondência estática primeiro
-        const staticItem = allNavItems.find(item => item.path === path);
-        if (staticItem) {
-            return { title: staticItem.label, description: staticItem.description };
+    const generateBreadcrumbs = (pathname) => {
+        const breadcrumbs = [];
+
+        // Sempre começar com Home
+        breadcrumbs.push({
+            label: 'Dashboard',
+            path: '/',
+            icon: null,
+            isActive: pathname === '/'
+        });
+
+        // Se não for a home, processar o caminho
+        if (pathname !== '/') {
+            const pathSegments = pathname.split('/').filter(segment => segment);
+            let currentPath = '';
+
+            pathSegments.forEach((segment, index) => {
+                currentPath += `/${segment}`;
+                const isLast = index === pathSegments.length - 1;
+
+                // Verificar se é um ID numérico (para rotas dinâmicas)
+                const isNumericId = !isNaN(segment) && segment !== '';
+
+                let breadcrumbItem = {
+                    path: currentPath,
+                    isActive: isLast
+                };
+
+                // Configuração estática
+                if (breadcrumbConfig[currentPath]) {
+                    breadcrumbItem = {
+                        ...breadcrumbItem,
+                        ...breadcrumbConfig[currentPath]
+                    };
+                }
+                // Rotas dinâmicas de projetos
+                else if (currentPath.startsWith('/projects/') && isNumericId) {
+                    breadcrumbItem.label = 'Detalhes do Projeto';
+                }
+                else if (currentPath.endsWith('/bom')) {
+                    breadcrumbItem.label = 'Visualizador de BOM';
+                }
+                else if (currentPath.endsWith('/machines')) {
+                    breadcrumbItem.label = 'Máquinas';
+                }
+
+                // Fallback para outros segmentos
+                else {
+                    breadcrumbItem.label = segment.charAt(0).toUpperCase() + segment.slice(1);
+                }
+
+                breadcrumbs.push(breadcrumbItem);
+            });
         }
 
-        // Lida com caminhos dinâmicos (ex: /projects/1, /projects/1/edit)
-        if (path.startsWith('/projects/')) {
-            if (path.endsWith('/bom')) {
-                return { title: 'Visualizador de BOM', description: 'Lista de materiais da máquina' };
-            }
-            return { title: 'Detalhes do Projeto', description: 'Informações detalhadas do projeto' };
-        }
-
-
-        // Retorno padrão para rotas não mapeadas
-        const defaultItem = allNavItems.find(item => item.path === '/');
-        return {
-            title: defaultItem?.label || 'Dashboard',
-            description: defaultItem?.description || 'Visão geral operacional'
-        };
+        return breadcrumbs;
     };
 
-    const { title, description } = getPageInfo(location.pathname);
+    const breadcrumbs = generateBreadcrumbs(location.pathname);
 
-    // O botão "voltar" só deve aparecer se não estivermos na página inicial.
-    const showBackButton = location.pathname !== '/';
+    const handleBreadcrumbClick = (path) => {
+        navigate(path);
+    };
 
     const handleBack = () => {
-        navigate(-1); // Função do react-router para voltar à página anterior no histórico
+        navigate(-1);
     };
 
-    // Ajuste nas classes CSS para o posicionamento correto em relação à sidebar
+    // Classes CSS para o posicionamento correto em relação à sidebar
     const headerClasses = `
         bg-white border-b border-gray-200 h-16 fixed top-0 right-0 z-30 transition-all duration-300
         left-0 ${sidebarCollapsed ? 'lg:left-16' : 'lg:left-64'}
@@ -75,8 +111,8 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
     return (
         <header className={headerClasses}>
             <div className="flex items-center justify-between h-full px-4 lg:px-6">
-                {/* Seção Esquerda: Botão de Menu, Voltar e Título */}
-                <div className="flex items-center gap-2">
+                {/* Seção Esquerda: Menu, Voltar e Breadcrumbs */}
+                <div className="flex items-center gap-3">
                     <button
                         onClick={onMobileMenuToggle}
                         className="lg:hidden p-2 rounded-md hover:bg-gray-100"
@@ -84,8 +120,8 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
                         <Menu className="w-5 h-5 text-gray-500" />
                     </button>
 
-                    {/* Botão de Voltar condicional */}
-                    {showBackButton && (
+                    {/* Botão de Voltar */}
+                    {location.pathname !== '/' && (
                         <button
                             onClick={handleBack}
                             className="p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -95,20 +131,56 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
                         </button>
                     )}
 
-                    <div className="hidden md:block">
-                        <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
-                        <p className="text-sm text-gray-500">{description}</p>
+                    {/* Sistema de Breadcrumbs */}
+                    <nav className="hidden md:flex items-center space-x-1" aria-label="Breadcrumb">
+                        <ol className="flex items-center space-x-1">
+                            {breadcrumbs.map((crumb, index) => {
+                                const isLast = index === breadcrumbs.length - 1;
+                                const IconComponent = crumb.icon;
+
+                                return (
+                                    <li key={crumb.path} className="flex items-center">
+                                        {/* Separador (não mostrar no primeiro item) */}
+                                        {index > 0 && (
+                                            <ChevronRight className="w-4 h-4 text-gray-400 mx-1" />
+                                        )}
+
+                                        {/* Item do Breadcrumb */}
+                                        <div className="flex items-center">
+                                            {isLast ? (
+                                                // Item ativo (não clicável)
+                                                <span className="flex items-center gap-1.5 text-sm font-medium text-gray-900">
+                                                    {IconComponent && <IconComponent className="w-4 h-4" />}
+                                                    {crumb.label}
+                                                </span>
+                                            ) : (
+                                                // Item clicável
+                                                <button
+                                                    onClick={() => handleBreadcrumbClick(crumb.path)}
+                                                    className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200 rounded px-2 py-1 hover:bg-gray-50"
+                                                >
+                                                    {IconComponent && <IconComponent className="w-4 h-4" />}
+                                                    {crumb.label}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </li>
+                                );
+                            })}
+                        </ol>
+                    </nav>
+
+                    {/* Título mobile (quando breadcrumbs não são visíveis) */}
+                    <div className="md:hidden">
+                        <h1 className="text-lg font-semibold text-gray-900">
+                            {breadcrumbs[breadcrumbs.length - 1]?.label || 'Dashboard'}
+                        </h1>
                     </div>
                 </div>
 
                 {/* Seção Direita: Pesquisa e Ícones */}
                 <div className="flex items-center gap-4">
                     <div className="relative flex-1 group">
-                        {/* Novo contêiner para o ícone: 
-      - Ocupa toda a altura do input (inset-y-0).
-      - Usa flexbox para centralizar o ícone verticalmente (flex items-center).
-      - 'pointer-events-none' garante que o clique passe direto para o input.
-    */}
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
                             <Search
                                 className="w-5 h-5 text-gray-400 transition-colors duration-300 group-focus-within:text-blue-600"
@@ -119,8 +191,6 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
                         <input
                             type="text"
                             placeholder="Pesquisar"
-
-                            // O padding esquerdo (pl-11) foi ajustado para dar espaço ao ícone
                             className="w-full pl-11 pr-4 py-2.5 text-gray-800 bg-white border border-gray-200 rounded-lg placeholder:text-gray-500 transition-all duration-300 ease-in-out shadow-sm hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                         />
                     </div>
@@ -131,7 +201,6 @@ const Header = ({ onMobileMenuToggle, sidebarCollapsed }) => {
                         </button>
                         <button className="p-2 rounded-full hover:bg-gray-100 relative">
                             <Bell className="w-5 h-5 text-gray-500" />
-                            {/* Exemplo de notificação */}
                             <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
                         </button>
                         <button className="flex items-center gap-2 p-2 rounded-full hover:bg-gray-100">

@@ -1,14 +1,16 @@
+// Sidebar atualizado baseado no seu design
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Menu, X, Home, BarChart3, Settings, Users, FileText, Target,
-    Activity, Zap, ChevronLeft, ChevronRight, User, Database, Cog
+    Activity, Zap, ChevronLeft, ChevronRight, User, Database, Cog, Package
 } from 'lucide-react';
 
-// Configurations (pode ser movido para um arquivo separado, ex: src/config/navigation.js)
+// Configurations seguindo seu padrão
 const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/', description: 'Visão geral operacional' },
     { id: 'projects', label: 'Projetos', icon: FileText, path: '/projects', description: 'Gestão de projetos CAD' },
+    { id: 'parts', label: 'Catálogo de Peças', icon: Package, path: '/parts', description: 'Catálogo unificado de componentes' }, // ✅ NOVO
     { id: 'bom', label: 'BOMs', icon: Database, path: '/bom', description: 'Lista de materiais' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/analytics', description: 'Métricas e relatórios' },
     { id: 'engineers', label: 'Engenheiros', icon: Users, path: '/engineers', description: 'Atividade da equipe' },
@@ -20,14 +22,20 @@ const systemItems = [
     { id: 'system', label: 'Sistema', icon: Cog, path: '/system', description: 'Status e manutenção' }
 ];
 
+interface SidebarProps {
+    isCollapsed: boolean;
+    onToggle: () => void;
+    isMobileOpen: boolean;
+    onMobileClose: () => void;
+}
 
-const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const isActivePage = (path) => location.pathname === path;
+    const isActivePage = (path: string) => location.pathname === path;
 
-    const handleNavigation = (path) => {
+    const handleNavigation = (path: string) => {
         navigate(path);
         onMobileClose();
     };
@@ -44,10 +52,10 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
 
             {/* Sidebar */}
             <div className={`
-        fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out
-        ${isCollapsed ? 'w-16' : 'w-64'}
-        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
+                fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-50 transition-all duration-300 ease-in-out
+                ${isCollapsed ? 'w-16' : 'w-64'}
+                ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            `}>
                 {/* Logo Section */}
                 <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
                     <div className="flex items-center gap-3">
@@ -89,13 +97,13 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
                                 key={item.id}
                                 onClick={() => handleNavigation(item.path)}
                                 className={`
-                  w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                  ${isActivePage(item.path)
+                                    w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                                    ${isActivePage(item.path)
                                         ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
                                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                     }
-                  ${isCollapsed ? 'justify-center' : ''}
-                `}
+                                    ${isCollapsed ? 'justify-center' : ''}
+                                `}
                                 title={isCollapsed ? item.label : ''}
                             >
                                 <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -121,13 +129,13 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
                                 key={item.id}
                                 onClick={() => handleNavigation(item.path)}
                                 className={`
-                  w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                  ${isActivePage(item.path)
+                                    w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                                    ${isActivePage(item.path)
                                         ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
                                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                     }
-                  ${isCollapsed ? 'justify-center' : ''}
-                `}
+                                    ${isCollapsed ? 'justify-center' : ''}
+                                `}
                                 title={isCollapsed ? item.label : ''}
                             >
                                 <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -142,7 +150,30 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
                     </div>
                 </nav>
 
-                {/* System Status & User Section... (código original mantido) */}
+                {/* System Status & User Section */}
+                <div className="border-t border-gray-200 p-3">
+                    {!isCollapsed && (
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="text-xs text-gray-500">Status do Sistema</div>
+                            <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span className="text-xs text-green-600">Online</span>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                            <User className="w-4 h-4 text-gray-600" />
+                        </div>
+                        {!isCollapsed && (
+                            <div className="min-w-0 flex-1">
+                                <div className="text-sm font-medium text-gray-900 truncate">Usuario</div>
+                                <div className="text-xs text-gray-500 truncate">user@empresa.com</div>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </>
     );

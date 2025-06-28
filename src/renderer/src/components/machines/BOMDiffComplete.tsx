@@ -39,13 +39,13 @@ class BOMDiffAPIService {
     private baseUrl = "http://localhost:5047";
 
     async getMachineVersionsList(machineId: number): Promise<BomVersionSummary[]> {
-        const response = await fetch(`${this.baseUrl}/api/boms/machines/${machineId}/versions`);
+        const response = await fetch(`${this.baseUrl}/api/boms/machine/${machineId}/versions`);
         if (!response.ok) throw new Error(`Erro ao buscar versões: ${response.statusText}`);
         return response.json();
     }
 
     async compareBomVersions(machineId: number, version1: number, version2: number): Promise<BomComparisonResult> {
-        const response = await fetch(`${this.baseUrl}/api/boms/machines/${machineId}/compare/${version1}/${version2}`);
+        const response = await fetch(`${this.baseUrl}/api/boms/machine/${machineId}/compare/${version1}/${version2}`);
         if (!response.ok) throw new Error(`Erro ao comparar versões: ${response.statusText}`);
         return response.json();
     }

@@ -465,8 +465,8 @@ export const ProjectDetailPage: React.FC = () => {
                     <button
                         onClick={() => setActiveTab('overview')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'overview'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         Visão Geral
@@ -474,8 +474,8 @@ export const ProjectDetailPage: React.FC = () => {
                     <button
                         onClick={() => setActiveTab('machines')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'machines'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         <Wrench className="w-4 h-4 inline mr-2" />
@@ -484,8 +484,8 @@ export const ProjectDetailPage: React.FC = () => {
                     <button
                         onClick={() => setActiveTab('timeline')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'timeline'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         Timeline
@@ -493,8 +493,8 @@ export const ProjectDetailPage: React.FC = () => {
                     <button
                         onClick={() => setActiveTab('files')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'files'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         Arquivos

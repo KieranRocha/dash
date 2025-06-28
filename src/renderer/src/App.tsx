@@ -7,6 +7,7 @@ import { ProjectsPage } from './pages/ProjectPage';
 import { CreateProjectPage } from './pages/CreateProjectPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { MachineDetailPage } from './pages/MachineDetailPage'; // ✅ ADICIONADO
+import { PartsPage } from './pages/PartsPage';
 
 /**
  * Componente genérico para páginas que estão na sidebar mas ainda não foram criadas.
@@ -36,6 +37,9 @@ export const App: React.FC = () => {
 
         {/* ✅ ADICIONADO: Rota para máquinas específicas */}
         <Route path="projects/:projectId/machines/:machineId" element={<MachineDetailPage />} />
+        {/* ✅ NOVA: Catálogo de Peças */}
+        <Route path="/parts" element={<PartsPage />} />
+        <Route path="/parts/:partNumber" element={<PartsPage />} /> {/* Para abrir modal direto */}
 
         {/* Rotas para itens da sidebar que ainda serão implementados */}
         <Route path="bom" element={<PlaceholderPage title="Lista de Materiais (BOMs)" />} />
